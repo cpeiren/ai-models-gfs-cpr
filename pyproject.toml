@@ -67,6 +67,7 @@ version_file = "src/ai_models/_version.py"
 file = "ai_models.inputs:FileInput"
 mars = "ai_models.inputs:MarsInput"
 cds = "ai_models.inputs:CdsInput"
+gfs = "ai_models.inputs:GfsInput"
 opendata = "ai_models.inputs:OpenDataInput"
 
 [project.entry-points."ai_models.output"]
