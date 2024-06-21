@@ -8,9 +8,12 @@
 import logging
 from functools import cached_property
 
+import eccodes
 import climetlab as cml
 import entrypoints
-
+import numpy as np
+from datetime import datetime,timedelta
+from pprint import pprint
 LOG = logging.getLogger(__name__)
 
 
@@ -97,6 +100,8 @@ class RequestBasedInput:
 
     @cached_property
     def all_fields(self):
+        for thing in self.fields_sfc + self.fields_pl:
+            print(thing)
         return self.fields_sfc + self.fields_pl + self.fields_ml
 
 
@@ -121,7 +126,6 @@ class MarsInput(RequestBasedInput):
         logging.debug("load source mars %s", kwargs)
         return cml.load_source("mars", kwargs)
 
-
 class CdsInput(RequestBasedInput):
     WHERE = "CDS"
 
@@ -131,11 +135,65 @@ class CdsInput(RequestBasedInput):
 
     def sfc_load_source(self, **kwargs):
         kwargs["product_type"] = "reanalysis"
+        print(kwargs)
         return cml.load_source("cds", "reanalysis-era5-single-levels", kwargs)
 
     def ml_load_source(self, **kwargs):
         raise NotImplementedError("CDS does not support model levels")
 
+class GfsInput(RequestBasedInput):
+    WHERE = "GFS"
+    def pl_load_source(self, **kwargs):
+        samplepres = cml.load_source("file","./sample_pres.grib")
+        gfsformatted = cml.new_grib_output(f"./gfspresformatted.grib",edition=1)
+        gfsurl = f"https://noaa-gfs-bdp-pds.s3.amazonaws.com/gfs.{str(kwargs['date'])}/{str(kwargs['time']).zfill(2)}/atmos/gfs.t{str(kwargs['time']).zfill(2)}z.pgrb2.0p25.f000"
+        gfspres = cml.load_source("url",f"{gfsurl}")
+        for grb in samplepres:
+            shortName = grb['shortName']
+            level = grb['level']
+            template = grb
+            eccodes.codes_set(template.handle.handle, "date", kwargs['date'])
+            eccodes.codes_set(template.handle.handle, "time", kwargs['time'])
+            if shortName=="z":
+                gfsghgrbs = gfspres.sel(param="gh",level=level)
+                data = gfsghgrbs[0].to_numpy()*9.80665
+            else:
+                gfsgrbs = gfspres.sel(param=shortName,level=level)
+                data = gfsgrbs[0].to_numpy()
+            gfsformatted.write(data,template=template)
+        gfspresformatted = cml.load_source("file","./gfspresformatted.grib")            
+        return gfspresformatted
+
+    def sfc_load_source(self, **kwargs):
+        samplesfc = cml.load_source("file","./sample_sfc.grib")
+        gfsformatted = cml.new_grib_output(f"./gfssfcformatted.grib",edition=1)
+        gfsurl = f"https://noaa-gfs-bdp-pds.s3.amazonaws.com/gfs.{str(kwargs['date'])}/{str(kwargs['time']).zfill(2)}/atmos/gfs.t{str(kwargs['time']).zfill(2)}z.pgrb2.0p25.f000"
+        gfssfc = cml.load_source("url",f"{gfsurl}")
+        for grb in samplesfc:
+            shortName = grb['shortName']
+            level = grb['level']
+            template = grb
+            eccodes.codes_set(template.handle.handle, "date", kwargs['date'])
+            eccodes.codes_set(template.handle.handle, "time", kwargs['time'])
+            if shortName=="tp":
+                data = np.zeros((721,1440))
+            elif shortName=="z" or shortName=="lsm":
+                data = grb.to_numpy()
+            elif shortName=="msl":
+                gfsmslgrbs = gfssfc.sel(param="prmsl")
+                data = gfsmslgrbs[0].to_numpy()
+            elif shortName=="tcwv":
+                gfstcwvgrbs = gfssfc.sel(param="pwat")
+                data = gfstcwvgrbs[0].to_numpy()
+            else:
+                gfsgrbs = gfssfc.sel(param=shortName)
+                data = gfsgrbs[0].to_numpy()
+            gfsformatted.write(data,template=template)
+        gfssfcformatted = cml.load_source("file","./gfssfcformatted.grib")
+        return gfssfcformatted
+
+    def ml_load_source(self, **kwargs):
+        raise NotImplementedError("CDS does not support model levels")
 
 class OpenDataInput(RequestBasedInput):
     WHERE = "OPENDATA"

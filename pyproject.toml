@@ -68,6 +68,7 @@ file = "ai_models.inputs:FileInput"
 mars = "ai_models.inputs:MarsInput"
 cds = "ai_models.inputs:CdsInput"
 opendata = "ai_models.inputs:OpenDataInput"
+gfs = "ai_models.inputs:GfsInput"
 
 [project.entry-points."ai_models.output"]
 file = "ai_models.outputs:FileOutput"
