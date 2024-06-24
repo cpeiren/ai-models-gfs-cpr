@@ -12,6 +12,7 @@ import eccodes
 import climetlab as cml
 import entrypoints
 import numpy as np
+import os
 from datetime import datetime,timedelta
 from pprint import pprint
 LOG = logging.getLogger(__name__)
@@ -140,17 +141,26 @@ class CdsInput(RequestBasedInput):
 
 class GfsInput(RequestBasedInput):
     WHERE = "GFS"
-    
+
     def pl_load_source(self, **kwargs):
         # Load the sample pressure GRIB file
         sample_pressure_grib = cml.load_source("file", "./sample_pres.grib")
         # Create a new GRIB output file for the formatted pressure data
-        formatted_pressure_file = f"./gfspresformatted_{str(kwargs['date'])}_{str(kwargs['time']).zfill(2)}.grib"
-        formatted_pressure_output = cml.new_grib_output(formatted_pressure_file, edition=1)
+        formatted_pressure_file = (
+            f"./gfspresformatted_{str(kwargs['date'])}_"
+            f"{str(kwargs['time']).zfill(2)}.grib"
+        )
+        formatted_pressure_output = cml.new_grib_output(
+            formatted_pressure_file, edition=1
+        )
         # Construct the URL to fetch GFS pressure data
-        gfs_pressure_url = f"https://noaa-gfs-bdp-pds.s3.amazonaws.com/gfs.{str(kwargs['date'])}/{str(kwargs['time']).zfill(2)}/atmos/gfs.t{str(kwargs['time']).zfill(2)}z.pgrb2.0p25.f000"
+        gfs_pressure_url = (
+            f"https://noaa-gfs-bdp-pds.s3.amazonaws.com/gfs.{str(kwargs['date'])}/"
+            f"{str(kwargs['time']).zfill(2)}/atmos/"
+            f"gfs.t{str(kwargs['time']).zfill(2)}z.pgrb2.0p25.f000"
+        )
         # Load the GFS pressure data from the URL
-        gfs_pressure_data = cml.load_source("url", f"{gfs_pressure_url}")
+        gfs_pressure_data = cml.load_source("url", gfs_pressure_url)
 
         # Iterate over the sample pressure GRIB messages
         for grib_message in sample_pressure_grib:
@@ -163,12 +173,16 @@ class GfsInput(RequestBasedInput):
             eccodes.codes_set(template.handle.handle, "time", int(kwargs['time']) * 100)
 
             if parameter_name == "z":
-                # Select geopotential height data and convert to meters by multiplying by 9.80665
-                geopotential_height_data = gfs_pressure_data.sel(param="gh", level=pressure_level)
+                # Select geopotential height data and convert to meters
+                geopotential_height_data = gfs_pressure_data.sel(
+                    param="gh", level=pressure_level
+                )
                 data_array = geopotential_height_data[0].to_numpy() * 9.80665
             else:
                 # Select other parameters' data
-                parameter_data = gfs_pressure_data.sel(param=parameter_name, level=pressure_level)
+                parameter_data = gfs_pressure_data.sel(
+                    param=parameter_name, level=pressure_level
+                )
                 data_array = parameter_data[0].to_numpy()
 
             # Write the data to the formatted GRIB file using the template
@@ -182,12 +196,21 @@ class GfsInput(RequestBasedInput):
         # Load the sample surface GRIB file
         sample_surface_grib = cml.load_source("file", "./sample_sfc.grib")
         # Create a new GRIB output file for the formatted surface data
-        formatted_surface_file = f"./gfssfcformatted_{str(kwargs['date'])}_{str(kwargs['time']).zfill(2)}.grib"
-        formatted_surface_output = cml.new_grib_output(formatted_surface_file, edition=1)
+        formatted_surface_file = (
+            f"./gfssfcformatted_{str(kwargs['date'])}_"
+            f"{str(kwargs['time']).zfill(2)}.grib"
+        )
+        formatted_surface_output = cml.new_grib_output(
+            formatted_surface_file, edition=1
+        )
         # Construct the URL to fetch GFS surface data
-        gfs_surface_url = f"https://noaa-gfs-bdp-pds.s3.amazonaws.com/gfs.{str(kwargs['date'])}/{str(kwargs['time']).zfill(2)}/atmos/gfs.t{str(kwargs['time']).zfill(2)}z.pgrb2.0p25.f000"
+        gfs_surface_url = (
+            f"https://noaa-gfs-bdp-pds.s3.amazonaws.com/gfs.{str(kwargs['date'])}/"
+            f"{str(kwargs['time']).zfill(2)}/atmos/"
+            f"gfs.t{str(kwargs['time']).zfill(2)}z.pgrb2.0p25.f000"
+        )
         # Load the GFS surface data from the URL
-        gfs_surface_data = cml.load_source("url", f"{gfs_surface_url}")
+        gfs_surface_data = cml.load_source("url", gfs_surface_url)
 
         # Iterate over the sample surface GRIB messages
         for grib_message in sample_surface_grib:
@@ -227,6 +250,123 @@ class GfsInput(RequestBasedInput):
 
     def ml_load_source(self, **kwargs):
         raise NotImplementedError("CDS does not support model levels")
+
+class GdasInput(RequestBasedInput):
+    WHERE = "GDAS"
+
+    def pl_load_source(self, **kwargs):
+        # Load the sample pressure GRIB file
+        sample_pressure_grib = cml.load_source("file", "./sample_pres.grib")
+        # Create a new GRIB output file for the formatted pressure data
+        formatted_pressure_file = (
+            f"/tmp/ai-models-gfs/gdaspresformatted_{str(kwargs['date'])}_"
+            f"{str(kwargs['time']).zfill(2)}.grib"
+        )
+        if not os.path.isdir("/tmp/ai-models-gfs"):
+            os.makedirs("/tmp/ai-models-gfs")
+        formatted_pressure_output = cml.new_grib_output(
+            formatted_pressure_file, edition=1
+        )
+        # Construct the URL to fetch GFS pressure data
+        gdas_pressure_url = (
+            f"https://noaa-gfs-bdp-pds.s3.amazonaws.com/gdas.{str(kwargs['date'])}/"
+            f"{str(kwargs['time']).zfill(2)}/atmos/"
+            f"gdas.t{str(kwargs['time']).zfill(2)}z.pgrb2.0p25.f000"
+        )
+        # Load the GFS pressure data from the URL
+        gdas_pressure_data = cml.load_source("url", gdas_pressure_url)
+
+        # Iterate over the sample pressure GRIB messages
+        for grib_message in sample_pressure_grib:
+            parameter_name = grib_message['shortName']
+            pressure_level = grib_message['level']
+            template = grib_message
+
+            # Set the date and time for the GRIB template
+            eccodes.codes_set(template.handle.handle, "date", int(kwargs['date']))
+            eccodes.codes_set(template.handle.handle, "time", int(kwargs['time']) * 100)
+
+            if parameter_name == "z":
+                # Select geopotential height data and convert to meters
+                geopotential_height_data = gdas_pressure_data.sel(
+                    param="gh", level=pressure_level
+                )
+                data_array = geopotential_height_data[0].to_numpy() * 9.80665
+            else:
+                # Select other parameters' data
+                parameter_data = gdas_pressure_data.sel(
+                    param=parameter_name, level=pressure_level
+                )
+                data_array = parameter_data[0].to_numpy()
+
+            # Write the data to the formatted GRIB file using the template
+            formatted_pressure_output.write(data_array, template=template)
+
+        # Load the formatted GRIB file and return it
+        formatted_pressure_grib = cml.load_source("file", formatted_pressure_file)
+        return formatted_pressure_grib
+
+    def sfc_load_source(self, **kwargs):
+        # Load the sample surface GRIB file
+        sample_surface_grib = cml.load_source("file", "./sample_sfc.grib")
+        # Create a new GRIB output file for the formatted surface data
+        formatted_surface_file = (
+            f"/tmp/ai-models-gfs/gdassfcformatted_{str(kwargs['date'])}_"
+            f"{str(kwargs['time']).zfill(2)}.grib"
+        )
+        if not os.path.isdir("/tmp/ai-models-gfs"):
+            os.makedirs("/tmp/ai-models-gfs")
+        formatted_surface_output = cml.new_grib_output(
+            formatted_surface_file, edition=1
+        )
+        # Construct the URL to fetch GFS surface data
+        gdas_surface_url = (
+            f"https://noaa-gfs-bdp-pds.s3.amazonaws.com/gdas.{str(kwargs['date'])}/"
+            f"{str(kwargs['time']).zfill(2)}/atmos/"
+            f"gdas.t{str(kwargs['time']).zfill(2)}z.pgrb2.0p25.f000"
+        )
+        # Load the GFS surface data from the URL
+        gdas_surface_data = cml.load_source("url", gdas_surface_url)
+
+        # Iterate over the sample surface GRIB messages
+        for grib_message in sample_surface_grib:
+            parameter_name = grib_message['shortName']
+            surface_level = grib_message['level']
+            template = grib_message
+
+            # Set the date and time for the GRIB template
+            eccodes.codes_set(template.handle.handle, "date", int(kwargs['date']))
+            eccodes.codes_set(template.handle.handle, "time", int(kwargs['time']) * 100)
+
+            if parameter_name == "tp":
+                # For total precipitation, create an array of zeros
+                data_array = np.zeros((721, 1440))
+            elif parameter_name in ["z", "lsm"]:
+                # For geopotential height and land-sea mask, use the data directly from the sample
+                data_array = grib_message.to_numpy()
+            elif parameter_name == "msl":
+                # Select mean sea level pressure data
+                mean_sea_level_pressure_data = gdas_surface_data.sel(param="prmsl")
+                data_array = mean_sea_level_pressure_data[0].to_numpy()
+            elif parameter_name == "tcwv":
+                # Select total column water vapor data
+                total_column_water_vapor_data = gdas_surface_data.sel(param="pwat")
+                data_array = total_column_water_vapor_data[0].to_numpy()
+            else:
+                # Select other parameters' data
+                parameter_data = gdas_surface_data.sel(param=parameter_name)
+                data_array = parameter_data[0].to_numpy()
+
+            # Write the data to the formatted GRIB file using the template
+            formatted_surface_output.write(data_array, template=template)
+
+        # Load the formatted GRIB file and return it
+        formatted_surface_grib = cml.load_source("file", formatted_surface_file)
+        return formatted_surface_grib
+
+    def ml_load_source(self, **kwargs):
+        raise NotImplementedError("CDS does not support model levels")
+
 
 class OpenDataInput(RequestBasedInput):
     WHERE = "OPENDATA"
