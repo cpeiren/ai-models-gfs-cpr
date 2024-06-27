@@ -17,6 +17,8 @@ from functools import cached_property
 import climetlab as cml
 import entrypoints
 import numpy as np
+import glob
+import urllib.request
 from climetlab.utils.humanize import seconds
 from multiurl import download
 
@@ -69,6 +71,7 @@ class Model:
     param_sfc = []  # param
 
     def __init__(self, input, output, download_assets, **kwargs):
+        self.download_samples()
         self.input = get_input(input, self, **kwargs)
         self.output = get_output(output, self, **kwargs)
 
@@ -535,6 +538,49 @@ class Model:
                         check=True,
                     )
 
+    # Remove temporary GFS files
+    def clean(self):
+        temporary_files = glob.glob("/tmp/ai-models-gfs/*.grib")
+        for temporary_file in temporary_files:
+            os.remove(temporary_file)
+
+    def download_samples(self):
+        sample_sfc_local_filename = (
+            os.path.dirname(os.path.abspath(__file__)) + '/inputs/sample_sfc.grib'
+        )
+        sample_pres_local_filename = (
+            os.path.dirname(os.path.abspath(__file__)) + '/inputs/sample_pres.grib'
+        )
+
+        if not os.path.exists(sample_sfc_local_filename):
+
+            sample_sfc_url = (
+                'https://noaa-oar-mlwp-data.s3.amazonaws.com/sample_files/sample_sfc.grib'
+            )
+
+            # Download the file
+            with urllib.request.urlopen(sample_sfc_url) as response, open(
+                sample_sfc_local_filename, 'wb'
+            ) as out_file:
+                # Read the response
+                sample_sfc_data = response.read()
+                # Write to the local file
+                out_file.write(sample_sfc_data) 
+
+        if not os.path.exists(sample_pres_local_filename):
+
+            sample_pres_url = (
+                'https://noaa-oar-mlwp-data.s3.amazonaws.com/sample_files/sample_pres.grib'
+            )
+
+            # Download the file
+            with urllib.request.urlopen(sample_pres_url) as response, open(
+                sample_pres_local_filename, 'wb'
+            ) as out_file:
+                # Read the response
+                sample_pres_data = response.read()
+                # Write to the local file
+                out_file.write(sample_pres_data)
 
 def load_model(name, **kwargs):
     return available_models()[name].load()(**kwargs)

@@ -143,11 +143,14 @@ class GfsInput(RequestBasedInput):
     WHERE = "GFS"
 
     def pl_load_source(self, **kwargs):
+
         # Load the sample pressure GRIB file
-        sample_pressure_grib = cml.load_source("file", "./sample_pres.grib")
+        sample_pressure_grib = cml.load_source(
+            "file", os.path.dirname(os.path.abspath(__file__)) + "/sample_pres.grib"
+        )
         # Create a new GRIB output file for the formatted pressure data
         formatted_pressure_file = (
-            f"./gfspresformatted_{str(kwargs['date'])}_"
+            f"/tmp/ai-models-gfs/gfspresformatted_{str(kwargs['date'])}_"
             f"{str(kwargs['time']).zfill(2)}.grib"
         )
         formatted_pressure_output = cml.new_grib_output(
@@ -170,7 +173,9 @@ class GfsInput(RequestBasedInput):
 
             # Set the date and time for the GRIB template
             eccodes.codes_set(template.handle.handle, "date", int(kwargs['date']))
-            eccodes.codes_set(template.handle.handle, "time", int(kwargs['time']) * 100)
+            eccodes.codes_set(
+                template.handle.handle, "time", int(kwargs['time']) * 100
+            )
 
             if parameter_name == "z":
                 # Select geopotential height data and convert to meters
@@ -193,11 +198,14 @@ class GfsInput(RequestBasedInput):
         return formatted_pressure_grib
 
     def sfc_load_source(self, **kwargs):
+
         # Load the sample surface GRIB file
-        sample_surface_grib = cml.load_source("file", "./sample_sfc.grib")
+        sample_surface_grib = cml.load_source(
+            "file", os.path.dirname(os.path.abspath(__file__)) + "/sample_sfc.grib"
+        )
         # Create a new GRIB output file for the formatted surface data
         formatted_surface_file = (
-            f"./gfssfcformatted_{str(kwargs['date'])}_"
+            f"/tmp/ai-models-gfs/gfssfcformatted_{str(kwargs['date'])}_"
             f"{str(kwargs['time']).zfill(2)}.grib"
         )
         formatted_surface_output = cml.new_grib_output(
@@ -220,13 +228,15 @@ class GfsInput(RequestBasedInput):
 
             # Set the date and time for the GRIB template
             eccodes.codes_set(template.handle.handle, "date", int(kwargs['date']))
-            eccodes.codes_set(template.handle.handle, "time", int(kwargs['time']) * 100)
+            eccodes.codes_set(
+                template.handle.handle, "time", int(kwargs['time']) * 100
+            )
 
             if parameter_name == "tp":
                 # For total precipitation, create an array of zeros
                 data_array = np.zeros((721, 1440))
             elif parameter_name in ["z", "lsm"]:
-                # For geopotential height and land-sea mask, use the data directly from the sample
+                # For geopotential height and land-sea mask, use the data directly
                 data_array = grib_message.to_numpy()
             elif parameter_name == "msl":
                 # Select mean sea level pressure data
@@ -255,8 +265,11 @@ class GdasInput(RequestBasedInput):
     WHERE = "GDAS"
 
     def pl_load_source(self, **kwargs):
+
         # Load the sample pressure GRIB file
-        sample_pressure_grib = cml.load_source("file", "./sample_pres.grib")
+        sample_pressure_grib = cml.load_source(
+            "file", os.path.dirname(os.path.abspath(__file__)) + "/sample_pres.grib"
+        )
         # Create a new GRIB output file for the formatted pressure data
         formatted_pressure_file = (
             f"/tmp/ai-models-gfs/gdaspresformatted_{str(kwargs['date'])}_"
@@ -284,7 +297,9 @@ class GdasInput(RequestBasedInput):
 
             # Set the date and time for the GRIB template
             eccodes.codes_set(template.handle.handle, "date", int(kwargs['date']))
-            eccodes.codes_set(template.handle.handle, "time", int(kwargs['time']) * 100)
+            eccodes.codes_set(
+                template.handle.handle, "time", int(kwargs['time']) * 100
+            )
 
             if parameter_name == "z":
                 # Select geopotential height data and convert to meters
@@ -307,8 +322,11 @@ class GdasInput(RequestBasedInput):
         return formatted_pressure_grib
 
     def sfc_load_source(self, **kwargs):
+
         # Load the sample surface GRIB file
-        sample_surface_grib = cml.load_source("file", "./sample_sfc.grib")
+        sample_surface_grib = cml.load_source(
+            "file", os.path.dirname(os.path.abspath(__file__)) + "/sample_sfc.grib"
+        )
         # Create a new GRIB output file for the formatted surface data
         formatted_surface_file = (
             f"/tmp/ai-models-gfs/gdassfcformatted_{str(kwargs['date'])}_"
@@ -336,13 +354,15 @@ class GdasInput(RequestBasedInput):
 
             # Set the date and time for the GRIB template
             eccodes.codes_set(template.handle.handle, "date", int(kwargs['date']))
-            eccodes.codes_set(template.handle.handle, "time", int(kwargs['time']) * 100)
+            eccodes.codes_set(
+                template.handle.handle, "time", int(kwargs['time']) * 100
+            )
 
             if parameter_name == "tp":
                 # For total precipitation, create an array of zeros
                 data_array = np.zeros((721, 1440))
             elif parameter_name in ["z", "lsm"]:
-                # For geopotential height and land-sea mask, use the data directly from the sample
+                # For geopotential height and land-sea mask, use the data directly
                 data_array = grib_message.to_numpy()
             elif parameter_name == "msl":
                 # Select mean sea level pressure data

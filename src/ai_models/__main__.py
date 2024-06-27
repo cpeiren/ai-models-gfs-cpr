@@ -10,6 +10,7 @@ import logging
 import os
 import shlex
 import sys
+import glob
 
 from .inputs import available_inputs
 from .model import Timer
@@ -148,7 +149,7 @@ def _main(argv):
 
     parser.add_argument(
         "--path",
-        help="Path where to write the output of the model",
+        help="Path where to write the output of the model (no suffix)",
     )
 
     parser.add_argument(
@@ -217,6 +218,11 @@ def _main(argv):
         action="store_true",
     )
 
+    parser.add_argument(
+        "--nc-or-grib",
+        help="Output netcdf or grib file (n, g, or ng for both)"
+    )    
+
     # TODO: deprecate that option
     parser.add_argument(
         "--model-version",
@@ -278,6 +284,9 @@ def _main(argv):
 
     if args.path is None:
         args.path = f"{args.model}.grib"
+        args.ncpath = f"{args.model}.nc"
+    else:
+        args.ncpath = f"{args.path}.nc"
 
     if args.file is not None:
         args.input = "file"
@@ -329,6 +338,7 @@ def run(cfg: dict, model_args: list):
 
     try:
         model.run()
+        model.clean()
     except FileNotFoundError as e:
         LOG.exception(e)
         LOG.error(
