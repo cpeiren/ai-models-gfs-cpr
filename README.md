@@ -32,7 +32,7 @@ pip install ai-models-graphcast-gfs  # Install details at https://github.com/jac
 pip install ai-models-fourcastnetv2-gfs
 ```
 
-See [ai-models-panguweather-gfs](https://github.com/jacob-radford/ai-models-panguweather), [ai-models-fourcastnetv2-gfs](https://github.com/jacob-radford/ai-models-fourcastnetv2-gfs) and [ai-models-graphcast-gfs](https://github.com/jacob-radford/ai-models-graphcast-gfs) for more details about these models.
+See [ai-models-panguweather-gfs](https://github.com/jacob-radford/ai-models-panguweather-gfs), [ai-models-fourcastnetv2-gfs](https://github.com/jacob-radford/ai-models-fourcastnetv2-gfs) and [ai-models-graphcast-gfs](https://github.com/jacob-radford/ai-models-graphcast-gfs) for more details about these models.
 
 ## Running the models
 
