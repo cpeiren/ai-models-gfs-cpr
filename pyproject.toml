@@ -1,27 +1,18 @@
 #!/usr/bin/env python
-# (C) Copyright 2024 ECMWF.
-#
-# This software is licensed under the terms of the Apache Licence Version 2.0
-# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
-# In applying this licence, ECMWF does not waive the privileges and immunities
-# granted to it by virtue of its status as an intergovernmental organisation
-# nor does it submit to any jurisdiction.
-
-# https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
 
 [build-system]
 requires = ["setuptools>=60", "setuptools-scm>=8.0"]
 
 [project]
-description = "A package to run AI weather models."
-name = "ai-models"
+description = "A package to run AI weather models with GFS initial conditions."
+name = "ai-models-gfs"
 
 dynamic = ["version"]
 license = { file = "LICENSE" }
 requires-python = ">=3.9"
 
 authors = [
-    { name = "European Centre for Medium-Range Weather Forecasts (ECMWF)", email = "software.support@ecmwf.int" },
+    { name = "Jacob Radford", email = "jacob.t.radford@gmail.com" },
 ]
 
 keywords = ["tools", "ai"]
@@ -53,9 +44,9 @@ dependencies = [
 
 
 [project.urls]
-Homepage = "https://github.com/ecmwf/ai-models/"
-Repository = "https://github.com/ecmwf/ai-models/"
-Issues = "https://github.com/ecmwf/ai-models/issues"
+Homepage = "https://github.com/jacob-radford/ai-models-gfs/"
+Repository = "https://github.com/jacob-radford/ai-models-gfs"
+Issues = "https://github.com/jacob-radford/ai-models-gfs"
 
 [project.scripts]
 ai-models = "ai_models.__main__:main"
