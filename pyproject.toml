@@ -6,8 +6,7 @@ requires = ["setuptools>=60", "setuptools-scm>=8.0"]
 [project]
 description = "A package to run AI weather models with GFS initial conditions."
 name = "ai-models-gfs"
-
-dynamic = ["version"]
+version = "0.0.2"
 license = { file = "LICENSE" }
 requires-python = ">=3.9"
 
@@ -49,19 +48,16 @@ Repository = "https://github.com/jacob-radford/ai-models-gfs"
 Issues = "https://github.com/jacob-radford/ai-models-gfs"
 
 [project.scripts]
-ai-models = "ai_models.__main__:main"
+ai-models-gfs = "ai_models_gfs.__main__:main"
 
-[tool.setuptools_scm]
-version_file = "src/ai_models/_version.py"
+[project.entry-points."ai_models_gfs.input"]
+file = "ai_models_gfs.inputs:FileInput"
+mars = "ai_models_gfs.inputs:MarsInput"
+cds = "ai_models_gfs.inputs:CdsInput"
+gfs = "ai_models_gfs.inputs:GfsInput"
+gdas = "ai_models_gfs.inputs:GdasInput"
+opendata = "ai_models_gfs.inputs:OpenDataInput"
 
-[project.entry-points."ai_models.input"]
-file = "ai_models.inputs:FileInput"
-mars = "ai_models.inputs:MarsInput"
-cds = "ai_models.inputs:CdsInput"
-gfs = "ai_models.inputs:GfsInput"
-gdas = "ai_models.inputs:GdasInput"
-opendata = "ai_models.inputs:OpenDataInput"
-
-[project.entry-points."ai_models.output"]
-file = "ai_models.outputs:FileOutput"
-none = "ai_models.outputs:NoneOutput"
+[project.entry-points."ai_models_gfs.output"]
+file = "ai_models_gfs.outputs:FileOutput"
+none = "ai_models_gfs.outputs:NoneOutput"

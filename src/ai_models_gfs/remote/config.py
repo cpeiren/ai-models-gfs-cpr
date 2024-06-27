@@ -3,7 +3,7 @@ import os
 
 API_URL = "https://ai-models.ecmwf.int/api/v1/"
 
-ROOT_PATH = os.path.join(os.path.expanduser("~"), ".config", "ai-models")
+ROOT_PATH = os.path.join(os.path.expanduser("~"), ".config", "ai-models-gfs")
 CONFIG_PATH = os.path.join(ROOT_PATH, "api.yaml")
 
 LOG = logging.getLogger(__name__)
