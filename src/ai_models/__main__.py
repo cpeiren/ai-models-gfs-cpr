@@ -288,6 +288,9 @@ def _main(argv):
     else:
         args.ncpath = f"{args.path}.nc"
 
+    if args.nc_or_grib is None:
+        args.nc_or_grib = "g"
+
     if args.file is not None:
         args.input = "file"
 
