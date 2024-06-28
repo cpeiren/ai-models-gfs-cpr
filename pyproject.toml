@@ -6,9 +6,11 @@ requires = ["setuptools>=60", "setuptools-scm>=8.0"]
 [project]
 description = "A package to run AI weather models with GFS initial conditions."
 name = "ai-models-gfs"
-version = "0.0.2"
+version = "0.0.4"
 license = { file = "LICENSE" }
 requires-python = ">=3.9"
+
+readme = "README.md"
 
 authors = [
     { name = "Jacob Radford", email = "jacob.t.radford@gmail.com" },

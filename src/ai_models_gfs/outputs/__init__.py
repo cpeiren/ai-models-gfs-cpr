@@ -178,6 +178,6 @@ def get_output(name, owner, *args, **kwargs):
 
 def available_outputs():
     result = {}
-    for e in entrypoints.get_group_all("ai_models.output"):
+    for e in entrypoints.get_group_all("ai_models_gfs.output"):
         result[e.name] = e
     return result

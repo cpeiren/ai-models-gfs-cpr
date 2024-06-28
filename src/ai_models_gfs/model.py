@@ -588,6 +588,6 @@ def load_model(name, **kwargs):
 
 def available_models():
     result = {}
-    for e in entrypoints.get_group_all("ai_models.model"):
+    for e in entrypoints.get_group_all("ai_models_gfs.model"):
         result[e.name] = e
     return result

@@ -246,7 +246,7 @@ def _main(argv):
 
     parser.add_argument(
         "--remote",
-        help="Enable remote execution, read url and token from ~/.config/ai-models/api.yaml",
+        help="Enable remote execution, read url and token from ~/.config/ai-models-gfs/api.yaml",
         action="store_true",
         dest="remote_execution",
         default=(os.environ.get("AI_MODELS_REMOTE", "0") == "1"),
@@ -255,7 +255,7 @@ def _main(argv):
     args, unknownargs = parser.parse_known_args(argv)
 
     if args.version:
-        from ai_models import __version__
+        from ai_models_gfs import __version__
 
         print(__version__)
         sys.exit(0)

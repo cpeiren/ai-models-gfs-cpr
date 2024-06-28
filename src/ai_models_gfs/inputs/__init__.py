@@ -457,6 +457,6 @@ def get_input(name, *args, **kwargs):
 
 def available_inputs():
     result = {}
-    for e in entrypoints.get_group_all("ai_models.input"):
+    for e in entrypoints.get_group_all("ai_models_gfs.input"):
         result[e.name] = e
     return result
