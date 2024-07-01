@@ -223,6 +223,12 @@ def _main(argv):
         help="Output netcdf or grib file (n, g, or ng for both)"
     )    
 
+    parser.add_argument(
+        "--onedeg",
+        action="store_true",
+        help="Run one degree version of graphcast"
+    )
+
     # TODO: deprecate that option
     parser.add_argument(
         "--model-version",
