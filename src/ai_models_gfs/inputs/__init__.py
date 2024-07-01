@@ -153,6 +153,10 @@ class GfsInput(RequestBasedInput):
             f"/tmp/ai-models-gfs/gfspresformatted_{str(kwargs['date'])}_"
             f"{str(kwargs['time']).zfill(2)}.grib"
         )
+
+        if not os.path.isdir("/tmp/ai-models-gfs"):
+            os.makedirs("/tmp/ai-models-gfs")
+
         formatted_pressure_output = cml.new_grib_output(
             formatted_pressure_file, edition=1
         )
@@ -208,6 +212,10 @@ class GfsInput(RequestBasedInput):
             f"/tmp/ai-models-gfs/gfssfcformatted_{str(kwargs['date'])}_"
             f"{str(kwargs['time']).zfill(2)}.grib"
         )
+
+        if not os.path.isdir("/tmp/ai-models-gfs"):
+            os.makedirs("/tmp/ai-models-gfs")
+
         formatted_surface_output = cml.new_grib_output(
             formatted_surface_file, edition=1
         )
