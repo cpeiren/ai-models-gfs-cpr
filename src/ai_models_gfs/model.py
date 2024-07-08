@@ -506,37 +506,38 @@ class Model:
         if ignore is None:
             ignore = []
 
-        with self.timer("Writing step 0"):
-            for field in fields:
-                if field.metadata("shortName") in ignore:
-                    continue
+        if 'g' in self.nc_or_grib:
+            with self.timer("Writing step 0"):
+                for field in fields:
+                    if field.metadata("shortName") in ignore:
+                        continue
 
-                if field.valid_datetime() == self.start_datetime:
-                    self.write(
-                        None,
-                        template=field,
-                        step=0,
-                    )
+                    if field.valid_datetime() == self.start_datetime:
+                        self.write(
+                            None,
+                            template=field,
+                            step=0,
+                        )
 
-            if accumulations is not None:
-                if accumulations_template is None:
-                    accumulations_template = fields.sel(param="2t")[0]
+                if accumulations is not None:
+                    if accumulations_template is None:
+                        accumulations_template = fields.sel(param="2t")[0]
 
-                if accumulations_shape is None:
-                    accumulations_shape = accumulations_template.shape
+                    if accumulations_shape is None:
+                        accumulations_shape = accumulations_template.shape
 
-                for param in accumulations:
-                    self.write(
-                        np.zeros(accumulations_shape, dtype=np.float32),
-                        stepType="accum",
-                        template=accumulations_template,
-                        param=param,
-                        startStep=0,
-                        endStep=0,
-                        date=int(self.start_datetime.strftime("%Y%m%d")),
-                        time=int(self.start_datetime.strftime("%H%M")),
-                        check=True,
-                    )
+                    for param in accumulations:
+                        self.write(
+                            np.zeros(accumulations_shape, dtype=np.float32),
+                            stepType="accum",
+                            template=accumulations_template,
+                            param=param,
+                            startStep=0,
+                            endStep=0,
+                            date=int(self.start_datetime.strftime("%Y%m%d")),
+                            time=int(self.start_datetime.strftime("%H%M")),
+                            check=True,
+                        )
 
     # Remove temporary GFS files
     def clean(self):
