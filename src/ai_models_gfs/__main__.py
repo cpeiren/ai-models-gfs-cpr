@@ -258,6 +258,12 @@ def _main(argv):
         default=(os.environ.get("AI_MODELS_REMOTE", "0") == "1"),
     )
 
+    parser.add_argument(
+        "--perturbation",
+        nargs=5,
+        help="Add an experimental perturbation to the input data"
+    )
+
     args, unknownargs = parser.parse_known_args(argv)
 
     if args.version:
